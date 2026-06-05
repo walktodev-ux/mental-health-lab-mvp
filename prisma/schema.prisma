@@ -1,0 +1,204 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum ScoringType {
+  SUM
+  AVERAGE
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AttemptStatus {
+  NEW
+  REVIEWED
+  NEEDS_DISCUSSION
+  CLOSED
+}
+
+enum RiskOperator {
+  EQUAL
+  NOT_EQUAL
+  GREATER_THAN
+  GREATER_OR_EQUAL
+  LESS_THAN
+  LESS_OR_EQUAL
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(STUDENT)
+
+  accounts      Account[]
+  sessions      Session[]
+
+  attempts      TestAttempt[] @relation("UserAttempts")
+  reviews       TestAttempt[] @relation("ReviewedAttempts")
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Test {
+  id          String      @id @default(cuid())
+  title       String
+  slug        String      @unique
+  description String
+  instruction String?
+  scoringType ScoringType @default(SUM)
+  isActive    Boolean     @default(true)
+  timeMinutes Int?
+
+  questions     Question[]
+  answerOptions AnswerOption[]
+  ranges        TestRange[]
+  attempts      TestAttempt[]
+  riskRules     RiskRule[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Question {
+  id      String @id @default(cuid())
+  testId  String
+  text    String @db.Text
+  order   Int
+
+  test      Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+  answers   TestAnswer[]
+  riskRules RiskRule[]
+
+  @@unique([testId, order])
+}
+
+model AnswerOption {
+  id     String @id @default(cuid())
+  testId String
+  label  String
+  value  Int
+  order  Int
+
+  test Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, value])
+}
+
+model TestRange {
+  id             String   @id @default(cuid())
+  testId         String
+  minScore       Float
+  maxScore       Float
+  title          String
+  description    String   @db.Text
+  recommendation String?  @db.Text
+  severity       Severity
+
+  test Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+}
+
+model TestAttempt {
+  id                String        @id @default(cuid())
+  userId            String
+  testId            String
+  totalScore        Float
+  resultTitle       String
+  resultDescription String        @db.Text
+  recommendation    String?       @db.Text
+  severity          Severity
+  hasRiskMarker     Boolean       @default(false)
+  riskMessage       String?       @db.Text
+  status            AttemptStatus @default(NEW)
+  adminComment      String?       @db.Text
+  reviewedById      String?
+  reviewedAt        DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  user       User  @relation("UserAttempts", fields: [userId], references: [id], onDelete: Cascade)
+  test       Test  @relation(fields: [testId], references: [id], onDelete: Cascade)
+  reviewedBy User? @relation("ReviewedAttempts", fields: [reviewedById], references: [id])
+
+  answers TestAnswer[]
+}
+
+model TestAnswer {
+  id         String @id @default(cuid())
+  attemptId String
+  questionId String
+  value      Int
+  label      String
+
+  attempt  TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+}
+
+model RiskRule {
+  id         String       @id @default(cuid())
+  testId     String
+  questionId String
+  operator   RiskOperator
+  value      Int
+  message    String       @db.Text
+  severity   Severity
+
+  test     Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
