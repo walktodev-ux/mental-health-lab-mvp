@@ -102,7 +102,7 @@ export function Sidebar({ role }: { role: "STUDENT" | "ADMIN" }) {
         </div>
 
         {role === "ADMIN" && (
-          <div className="mt-4 border-t border-black/10 pt-4">
+          <div className="mt-4 border-t border-black/10 pt-4 gap-2">
             {adminLinks.map((link) => (
               <Link
                 key={link.href}
