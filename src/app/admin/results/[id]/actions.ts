@@ -2,6 +2,7 @@
 
 import { AttemptStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 
@@ -16,10 +17,15 @@ export async function updateAttemptAction(attemptId: string, formData: FormData)
   }
 
   await prisma.testAttempt.update({
-    where: { id: attemptId },
+    where: {
+      id: attemptId,
+    },
     data: {
       status: status as AttemptStatus,
-      adminComment: typeof adminComment === "string" ? adminComment : null,
+      adminComment:
+        typeof adminComment === "string" && adminComment.trim().length > 0
+          ? adminComment.trim()
+          : null,
       reviewedById: admin.id,
       reviewedAt: new Date(),
     },
@@ -27,4 +33,6 @@ export async function updateAttemptAction(attemptId: string, formData: FormData)
 
   revalidatePath(`/admin/results/${attemptId}`);
   revalidatePath("/admin/results");
+
+  redirect(`/admin/results/${attemptId}`);
 }

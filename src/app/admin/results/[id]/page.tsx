@@ -68,6 +68,12 @@ export default async function AdminResultDetailPage({ params }: PageProps) {
 
       <Card>
         <h3 className="text-xl font-semibold">Обробка результату</h3>
+        {attempt.adminComment && (
+          <div className="mt-4 rounded-xl bg-background p-4 text-sm leading-6">
+            <strong>Збережений коментар:</strong>
+            <p className="mt-2 whitespace-pre-line text-muted">{attempt.adminComment}</p>
+          </div>
+        )}
         <form action={action} className="mt-4 space-y-4">
           <label className="block">
             <span className="text-sm font-medium">Статус</span>

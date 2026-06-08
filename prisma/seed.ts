@@ -37,11 +37,11 @@ const tests: TestSeed[] = [
     scoringType: ScoringType.SUM,
     timeMinutes: 7,
     options: [
-      { label: "0 — Зовсім ні", value: 0, order: 1 },
-      { label: "1 — Трохи", value: 1, order: 2 },
-      { label: "2 — Помірно", value: 2, order: 3 },
-      { label: "3 — Сильно", value: 3, order: 4 },
-      { label: "4 — Дуже сильно", value: 4, order: 5 },
+      { label: "Зовсім ні", value: 0, order: 1 },
+{ label: "Трохи", value: 1, order: 2 },
+{ label: "Помірно", value: 2, order: 3 },
+{ label: "Сильно", value: 3, order: 4 },
+{ label: "Дуже сильно", value: 4, order: 5 },
     ],
     questions: [
       "Повторювані, нав'язливі та мимовільні неприємні спогади про стресову подію.",
@@ -100,10 +100,10 @@ const tests: TestSeed[] = [
     scoringType: ScoringType.SUM,
     timeMinutes: 5,
     options: [
-      { label: "0 — Ніколи", value: 0, order: 1 },
-      { label: "1 — Кілька днів", value: 1, order: 2 },
-      { label: "2 — Більше половини днів", value: 2, order: 3 },
-      { label: "3 — Майже щодня", value: 3, order: 4 },
+      { label: "Ніколи", value: 0, order: 1 },
+      { label: " Кілька днів", value: 1, order: 2 },
+      { label: " Більше половини днів", value: 2, order: 3 },
+      { label: " Майже щодня", value: 3, order: 4 },
     ],
     questions: [
       "Мало інтересу або задоволення від справ, які зазвичай подобалися.",
@@ -176,10 +176,10 @@ const tests: TestSeed[] = [
     scoringType: ScoringType.SUM,
     timeMinutes: 4,
     options: [
-      { label: "0 — Ніколи", value: 0, order: 1 },
-      { label: "1 — Кілька днів", value: 1, order: 2 },
-      { label: "2 — Більше половини днів", value: 2, order: 3 },
-      { label: "3 — Майже щодня", value: 3, order: 4 },
+      { label: " Ніколи", value: 0, order: 1 },
+      { label: "Кілька днів", value: 1, order: 2 },
+      { label: "Більше половини днів", value: 2, order: 3 },
+      { label: "Майже щодня", value: 3, order: 4 },
     ],
     questions: [
       "Відчуття нервозності, тривожності або напруження.",
@@ -233,11 +233,11 @@ const tests: TestSeed[] = [
     scoringType: ScoringType.AVERAGE,
     timeMinutes: 6,
     options: [
-      { label: "1 — Ніколи", value: 1, order: 1 },
-      { label: "2 — Рідко", value: 2, order: 2 },
-      { label: "3 — Іноді", value: 3, order: 3 },
-      { label: "4 — Часто", value: 4, order: 4 },
-      { label: "5 — Завжди", value: 5, order: 5 },
+      { label: "Ніколи", value: 1, order: 1 },
+      { label: "Рідко", value: 2, order: 2 },
+      { label: "Іноді", value: 3, order: 3 },
+      { label: "Часто", value: 4, order: 4 },
+      { label: "Завжди", value: 5, order: 5 },
     ],
     questions: [
       "Наприкінці робочого дня я почуваюся психічно виснаженим(-ою) та спустошеним(-ою).",
@@ -349,3 +349,4 @@ main()
     await prisma.$disconnect();
     process.exit(1);
   });
+

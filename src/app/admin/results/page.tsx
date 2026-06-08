@@ -66,7 +66,11 @@ export default async function AdminResultsPage({ searchParams }: PageProps) {
                 <td className="py-4 pr-4">
                   <Badge className={severityClass(attempt.severity)}>{severityLabels[attempt.severity]}</Badge>
                 </td>
-                <td className="py-4 pr-4">{attempt.hasRiskMarker ? "Так" : "Ні"}</td>
+               <td className="py-4 pr-4">
+                  {attempt.hasRiskMarker || attempt.severity === "HIGH" || attempt.severity === "CRITICAL"
+                    ? "Так"
+                    : "Ні"}
+                </td>
                 <td className="py-4 pr-4">{statusLabels[attempt.status]}</td>
                 <td className="py-4 pr-4">{attempt.createdAt.toLocaleDateString("uk-UA")}</td>
                 <td className="py-4 pr-4">
