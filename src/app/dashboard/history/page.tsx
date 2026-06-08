@@ -29,7 +29,7 @@ export default async function HistoryPage() {
             <Link
               key={attempt.id}
               href={`/dashboard/results/${attempt.id}`}
-              className="flex flex-col gap-2 rounded-xl border border-black/5 p-4 hover:bg-background md:flex-row md:items-center md:justify-between"
+              className="flex flex-col gap-2 rounded-xl border border-black/5 p-4 hover:bg-hover md:flex-row md:items-center md:justify-between"
             >
               <div>
                 <p className="font-medium">{attempt.test.title}</p>
