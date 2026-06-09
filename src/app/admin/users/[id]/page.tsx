@@ -112,10 +112,10 @@ export default async function AdminStudentPage({
       userId: id,
       ...(selectedTest !== "all"
         ? {
-            test: {
-              slug: selectedTest,
-            },
-          }
+          test: {
+            slug: selectedTest,
+          },
+        }
         : {}),
     },
     orderBy: {
@@ -214,11 +214,10 @@ export default async function AdminStudentPage({
           <div className="flex flex-wrap gap-2">
             <Link
               href={`/admin/users/${student.id}`}
-              className={`rounded-full px-4 py-2 text-sm transition ${
-                selectedTest === "all"
+              className={`rounded-full px-4 py-2 text-sm transition ${selectedTest === "all"
                   ? "bg-text text-white"
                   : "bg-background text-text hover:bg-hover"
-              }`}
+                }`}
             >
               Усі
               <span className="ml-2 text-xs opacity-70">{totalAttempts}</span>
@@ -228,11 +227,10 @@ export default async function AdminStudentPage({
               <Link
                 key={test.slug}
                 href={`/admin/users/${student.id}?test=${test.slug}`}
-                className={`rounded-full px-4 py-2 text-sm transition ${
-                  selectedTest === test.slug
+                className={`rounded-full px-4 py-2 text-sm transition ${selectedTest === test.slug
                     ? "bg-text text-white"
                     : "bg-background text-text hover:bg-hover"
-                }`}
+                  }`}
               >
                 {test.title}
                 <span className="ml-2 text-xs opacity-70">{test.count}</span>
@@ -253,7 +251,7 @@ export default async function AdminStudentPage({
         </div>
 
         <table className="w-full border-collapse text-left text-sm">
-          <thead className="bg-background text-xs uppercase tracking-[0.18em] text-muted">
+          <thead className="bg-card text-xs uppercase tracking-[0.18em] text-muted">
             <tr>
               <th className="px-5 py-4">Тест</th>
               <th className="px-5 py-4">Бал</th>

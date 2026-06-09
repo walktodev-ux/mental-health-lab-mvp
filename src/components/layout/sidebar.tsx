@@ -10,6 +10,7 @@ const adminLinks = [
   { href: "/admin", label: "Адмінка" },
   { href: "/admin/results", label: "Результати тестування" },
   { href: "/admin/users", label: "Студенти" },
+  { href: "/admin/bibliography", label: "Бібліографія" },
 ];
 
 export function Sidebar({ role }: { role: "STUDENT" | "ADMIN" }) {

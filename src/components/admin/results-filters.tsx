@@ -51,7 +51,7 @@ function CustomSelect({ label, name, value, options }: CustomSelectProps) {
 
   return (
     <div className="space-y-2">
-      <label className="text-xs uppercase tracking-[0.28em] text-muted">
+      <label className="text-xs ml-3 uppercase tracking-[0.28em] text-muted">
         {label}
       </label>
 
@@ -67,9 +67,8 @@ function CustomSelect({ label, name, value, options }: CustomSelectProps) {
           <span className="line-clamp-1">{selectedOption.label}</span>
 
           <span
-            className={`pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-xs text-muted transition-transform duration-300 ${
-              isOpen ? "rotate-180" : "rotate-0"
-            }`}
+            className={`pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-xs text-muted transition-transform duration-300 ${isOpen ? "rotate-180" : "rotate-0"
+              }`}
           >
             ▼
           </span>
@@ -88,11 +87,10 @@ function CustomSelect({ label, name, value, options }: CustomSelectProps) {
                     setSelectedValue(option.value);
                     setIsOpen(false);
                   }}
-                  className={`block w-full rounded-xl px-4 py-3 text-left text-sm transition ${
-                    isActive
+                  className={`block w-full rounded-xl px-4 py-3 text-left text-sm transition ${isActive
                       ? "bg-text text-white"
                       : "text-text hover:bg-hover"
-                  }`}
+                    }`}
                 >
                   {option.label}
                 </button>
@@ -118,7 +116,7 @@ function DateField({
     <div className="space-y-2">
       <label
         htmlFor={name}
-        className="text-xs uppercase tracking-[0.28em] text-muted"
+        className="text-xs uppercase ml-3 tracking-[0.28em] text-muted"
       >
         {label}
       </label>

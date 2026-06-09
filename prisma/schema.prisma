@@ -40,6 +40,38 @@ enum RiskOperator {
   LESS_OR_EQUAL
 }
 
+enum BibliographySource {
+  CROSSREF
+  GOOGLE_BOOKS
+  OPENAI_WEB
+  MANUAL
+}
+
+model BibliographyItem {
+  id       String             @id @default(cuid())
+  rawInput String
+  source   BibliographySource
+  cslJson  Json
+
+  title    String?
+  itemType String?
+  doi      String? @unique
+  isbn     String?
+  url      String?
+
+  createdById String?
+  createdBy   User?   @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdById])
+  @@index([itemType])
+  @@index([title])
+  @@index([isbn])
+  @@index([url])
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -48,14 +80,16 @@ model User {
   image         String?
   role          Role      @default(STUDENT)
 
-  accounts      Account[]
-  sessions      Session[]
+  accounts Account[]
+  sessions Session[]
 
-  attempts      TestAttempt[] @relation("UserAttempts")
-  reviews       TestAttempt[] @relation("ReviewedAttempts")
+  attempts TestAttempt[] @relation("UserAttempts")
+  reviews  TestAttempt[] @relation("ReviewedAttempts")
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  bibliographyItems BibliographyItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Account {
@@ -115,12 +149,12 @@ model Test {
 }
 
 model Question {
-  id      String @id @default(cuid())
-  testId  String
-  text    String @db.Text
-  order   Int
+  id     String @id @default(cuid())
+  testId String
+  text   String @db.Text
+  order  Int
 
-  test      Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+  test      Test         @relation(fields: [testId], references: [id], onDelete: Cascade)
   answers   TestAnswer[]
   riskRules RiskRule[]
 
@@ -179,7 +213,7 @@ model TestAttempt {
 
 model TestAnswer {
   id         String @id @default(cuid())
-  attemptId String
+  attemptId  String
   questionId String
   value      Int
   label      String
