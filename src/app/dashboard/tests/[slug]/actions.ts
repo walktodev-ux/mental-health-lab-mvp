@@ -8,15 +8,29 @@ import { calculateTotalScore, detectRiskMarkers, findResultRange, type AnswerMap
 export async function submitTestAction(slug: string, formData: FormData) {
   const user = await requireUser();
 
-  const test = await prisma.test.findUnique({
-    where: { slug },
-    include: {
-      questions: { orderBy: { order: "asc" } },
-      answerOptions: { orderBy: { order: "asc" } },
-      ranges: true,
-      riskRules: true,
+const test = await prisma.test.findUnique({
+  where: {
+    slug,
+  },
+  include: {
+    answerOptions: {
+      orderBy: {
+        order: "asc",
+      },
     },
-  });
+    questions: {
+      orderBy: {
+        order: "asc",
+      },
+    },
+    ranges: {
+      orderBy: {
+        minScore: "asc",
+      },
+    },
+    riskRules: true,
+  },
+});
 
   if (!test || !test.isActive) {
     throw new Error("Тест не знайдено.");

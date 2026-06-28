@@ -17,6 +17,13 @@ enum ScoringType {
   AVERAGE
 }
 
+enum QuestionType {
+  SCALE
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  TEXT
+}
+
 enum Severity {
   LOW
   MEDIUM
@@ -45,6 +52,16 @@ enum BibliographySource {
   GOOGLE_BOOKS
   OPENAI_WEB
   MANUAL
+}
+
+enum AnswerMode {
+  SHARED
+  PER_QUESTION
+}
+
+enum ScoringMode {
+  TOTAL
+  MULTISCALE
 }
 
 model BibliographyItem {
@@ -90,6 +107,9 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([role])
+  @@index([email])
 }
 
 model Account {
@@ -109,6 +129,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -118,6 +139,8 @@ model Session {
   expires      DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model VerificationToken {
@@ -129,13 +152,17 @@ model VerificationToken {
 }
 
 model Test {
-  id          String      @id @default(cuid())
+  id          String  @id @default(cuid())
   title       String
-  slug        String      @unique
-  description String
-  instruction String?
+  slug        String  @unique
+  description String  @db.Text
+  instruction String? @db.Text
+
   scoringType ScoringType @default(SUM)
-  isActive    Boolean     @default(true)
+  scoringMode ScoringMode @default(TOTAL)
+  answerMode  AnswerMode  @default(SHARED)
+
+  isActive    Boolean @default(true)
   timeMinutes Int?
 
   questions     Question[]
@@ -143,39 +170,71 @@ model Test {
   ranges        TestRange[]
   attempts      TestAttempt[]
   riskRules     RiskRule[]
+  scales        TestScale[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Question {
-  id     String @id @default(cuid())
-  testId String
-  text   String @db.Text
-  order  Int
+  id      String  @id @default(cuid())
+  testId  String
+  scaleId String?
 
-  test      Test         @relation(fields: [testId], references: [id], onDelete: Cascade)
-  answers   TestAnswer[]
-  riskRules RiskRule[]
+  text       String       @db.Text
+  helpText   String?      @db.Text
+  type       QuestionType @default(SCALE)
+  order      Int
+  isRequired Boolean      @default(true)
+
+  test          Test           @relation(fields: [testId], references: [id], onDelete: Cascade)
+  scale         TestScale?     @relation(fields: [scaleId], references: [id], onDelete: SetNull)
+  answerOptions AnswerOption[]
+  answers       TestAnswer[]
+  riskRules     RiskRule[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([testId, order])
+  @@index([testId])
+  @@index([scaleId])
 }
 
 model AnswerOption {
-  id     String @id @default(cuid())
-  testId String
-  label  String
-  value  Int
-  order  Int
+  id         String  @id @default(cuid())
+  testId     String
+  questionId String?
 
-  test Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+  label String
+  value Int
+  order Int
 
-  @@unique([testId, value])
+  isRiskMarker Boolean   @default(false)
+  riskMessage  String?   @db.Text
+  riskSeverity Severity?
+
+  test     Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
+  question Question? @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  answers   TestAnswer[]
+  riskRules RiskRule[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([questionId, order])
+  @@index([testId])
+  @@index([questionId])
+  @@index([testId, questionId])
+  @@index([isRiskMarker])
 }
 
 model TestRange {
-  id             String   @id @default(cuid())
-  testId         String
+  id      String  @id @default(cuid())
+  testId  String
+  scaleId String?
+
   minScore       Float
   maxScore       Float
   title          String
@@ -183,7 +242,15 @@ model TestRange {
   recommendation String?  @db.Text
   severity       Severity
 
-  test Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+  test  Test       @relation(fields: [testId], references: [id], onDelete: Cascade)
+  scale TestScale? @relation(fields: [scaleId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([testId])
+  @@index([scaleId])
+  @@index([severity])
 }
 
 model TestAttempt {
@@ -206,33 +273,108 @@ model TestAttempt {
 
   user       User  @relation("UserAttempts", fields: [userId], references: [id], onDelete: Cascade)
   test       Test  @relation(fields: [testId], references: [id], onDelete: Cascade)
-  reviewedBy User? @relation("ReviewedAttempts", fields: [reviewedById], references: [id])
+  reviewedBy User? @relation("ReviewedAttempts", fields: [reviewedById], references: [id], onDelete: SetNull)
 
   answers TestAnswer[]
+
+  scaleResults TestScaleResult[]
+
+  @@index([userId])
+  @@index([testId])
+  @@index([status])
+  @@index([severity])
+  @@index([hasRiskMarker])
+  @@index([createdAt])
+  @@index([reviewedById])
 }
 
 model TestAnswer {
-  id         String @id @default(cuid())
-  attemptId  String
-  questionId String
-  value      Int
-  label      String
+  id             String  @id @default(cuid())
+  attemptId      String
+  questionId     String
+  answerOptionId String?
 
-  attempt  TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  question Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  value     Int?
+  label     String?
+  textValue String? @db.Text
 
-  @@unique([attemptId, questionId])
+  attempt      TestAttempt   @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question     Question      @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answerOption AnswerOption? @relation(fields: [answerOptionId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([attemptId])
+  @@index([questionId])
+  @@index([answerOptionId])
+}
+
+model TestScale {
+  id          String  @id @default(cuid())
+  testId      String
+  code        String
+  title       String
+  description String? @db.Text
+  multiplier  Float   @default(1)
+
+  test      Test              @relation(fields: [testId], references: [id], onDelete: Cascade)
+  questions Question[]
+  ranges    TestRange[]
+  results   TestScaleResult[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([testId, code])
+  @@index([testId])
+}
+
+model TestScaleResult {
+  id        String @id @default(cuid())
+  attemptId String
+  scaleId   String
+
+  rawScore   Float
+  finalScore Float
+
+  resultTitle       String
+  resultDescription String   @db.Text
+  recommendation    String?  @db.Text
+  severity          Severity
+
+  attempt TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  scale   TestScale   @relation(fields: [scaleId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([attemptId, scaleId])
+  @@index([attemptId])
+  @@index([scaleId])
 }
 
 model RiskRule {
-  id         String       @id @default(cuid())
-  testId     String
-  questionId String
-  operator   RiskOperator
-  value      Int
-  message    String       @db.Text
-  severity   Severity
+  id             String  @id @default(cuid())
+  testId         String
+  questionId     String
+  answerOptionId String?
 
-  test     Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
-  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  operator RiskOperator
+  value    Int?
+
+  message  String   @db.Text
+  severity Severity
+  isActive Boolean  @default(true)
+
+  test         Test          @relation(fields: [testId], references: [id], onDelete: Cascade)
+  question     Question      @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answerOption AnswerOption? @relation(fields: [answerOptionId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([testId])
+  @@index([questionId])
+  @@index([answerOptionId])
+  @@index([isActive])
+  @@index([severity])
 }

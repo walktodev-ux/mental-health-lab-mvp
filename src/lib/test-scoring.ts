@@ -19,7 +19,7 @@ export type ScoringRange = {
 export type ScoringRiskRule = {
   questionId: string;
   operator: RiskOperator;
-  value: number;
+  value: number | null;
   message: string;
   severity: Severity;
 };
@@ -35,7 +35,9 @@ export function calculateTotalScore(scoringType: ScoringType, values: number[]) 
 }
 
 export function findResultRange(score: number, ranges: ScoringRange[]) {
-  const range = ranges.find((item) => score >= item.minScore && score <= item.maxScore);
+  const range = ranges.find(
+    (item) => score >= item.minScore && score <= item.maxScore
+  );
 
   if (!range) {
     throw new Error("Не знайдено діапазон результату для цього тесту.");
@@ -63,11 +65,22 @@ function compare(value: number, operator: RiskOperator, expected: number) {
   }
 }
 
-export function detectRiskMarkers(answers: AnswerMap, riskRules: ScoringRiskRule[]) {
+export function detectRiskMarkers(
+  answers: AnswerMap,
+  riskRules: ScoringRiskRule[]
+) {
   return riskRules
     .filter((rule) => {
+      if (rule.value === null) {
+        return false;
+      }
+
       const answerValue = answers[rule.questionId];
-      return typeof answerValue === "number" && compare(answerValue, rule.operator, rule.value);
+
+      return (
+        typeof answerValue === "number" &&
+        compare(answerValue, rule.operator, rule.value)
+      );
     })
     .map((rule) => ({
       message: rule.message,

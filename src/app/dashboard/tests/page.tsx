@@ -26,7 +26,7 @@ export default async function TestsPage() {
           <Card key={test.id} className="flex flex-col justify-between">
             <div>
               <h3 className="text-xl font-semibold">{test.title}</h3>
-              <p className="mt-3 text-sm leading-6 text-muted">{test.description}</p>
+              <p className="mt-3 text-sm leading-6 text-muted whitespace-pre-line">{test.description}</p>
             </div>
 
             <div className="mt-6 flex items-center justify-between gap-4">

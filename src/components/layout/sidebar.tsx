@@ -6,13 +6,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 
-const adminLinks = [
-  { href: "/admin", label: "Адмінка" },
-  { href: "/admin/results", label: "Результати тестування" },
-  { href: "/admin/users", label: "Студенти" },
-  { href: "/admin/bibliography", label: "Бібліографія" },
-];
-
 export function Sidebar({ role }: { role: "STUDENT" | "ADMIN" }) {
   const pathname = usePathname();
 
@@ -103,17 +96,13 @@ export function Sidebar({ role }: { role: "STUDENT" | "ADMIN" }) {
         </div>
 
         {role === "ADMIN" && (
-          <div className="flex flex-col mt-4 border-t border-black/10 pt-4 gap-2">
-            {adminLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`block rounded-full px-4 py-2 text-sm transition-colors duration-300 hover:bg-hover ${pathname === link.href ? "bg-hover text-text" : "text-text"
-                  }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+          <div className="mt-4 border-t border-black/10 pt-4">
+            <Link
+              href="/admin"
+              className="block rounded-full px-4 py-2 text-sm text-text transition-colors duration-300 hover:bg-hover"
+            >
+              Перейти в адмінку
+            </Link>
           </div>
         )}
       </nav>
