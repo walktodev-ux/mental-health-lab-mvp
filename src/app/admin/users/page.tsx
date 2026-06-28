@@ -63,7 +63,9 @@ export default async function AdminUsersPage() {
         <p className="text-sm uppercase tracking-[0.24em] text-muted">
           Адмінка
         </p>
+
         <h1 className="mt-2 text-3xl font-semibold text-text">Студенти</h1>
+
         <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
           Натисніть на студента, щоб відкрити його дашборд з тестуваннями,
           фільтрами по тестах і результатами.
@@ -71,16 +73,26 @@ export default async function AdminUsersPage() {
       </Card>
 
       <div className="overflow-hidden rounded-xl2 border border-black/5 bg-card shadow-sm">
-        <table className="w-full border-collapse text-left text-sm">
-          <thead className="bg-card text-xs uppercase tracking-[0.18em] text-muted">
+        <table className="w-full table-fixed border-collapse text-left text-sm">
+          <colgroup>
+            <col className="w-[16%]" />
+            <col className="w-[25%]" />
+            <col className="w-[11%]" />
+            <col className="w-[16%]" />
+            <col className="w-[8%]" />
+            <col className="w-[11%]" />
+            <col className="w-[13%]" />
+          </colgroup>
+
+          <thead className="bg-card text-xs uppercase tracking-[0.14em] text-muted">
             <tr>
-              <th className="px-5 py-4">Студент</th>
-              <th className="px-5 py-4">Email</th>
-              <th className="px-5 py-4">Тестів пройдено</th>
-              <th className="px-5 py-4">Останній тест</th>
-              <th className="px-5 py-4">Ризик</th>
-              <th className="px-5 py-4">Дата</th>
-              <th className="px-5 py-4">Дія</th>
+              <th className="px-3 py-4">Студент</th>
+              <th className="px-3 py-4">Email</th>
+              <th className="px-3 py-4">Тестів пройдено</th>
+              <th className="px-3 py-4">Останній тест</th>
+              <th className="px-3 py-4">Ризик</th>
+              <th className="px-3 py-4">Дата</th>
+              <th className="px-3 py-4 text-right">Дія</th>
             </tr>
           </thead>
 
@@ -91,40 +103,51 @@ export default async function AdminUsersPage() {
 
               return (
                 <tr key={user.id} className="border-t border-black/5">
-                  <td className="px-5 py-4 font-medium text-text">
-                    {user.name || "Без імені"}
+                  <td className="max-w-0 px-3 py-4 font-medium text-text">
+                    <span className="block truncate" title={user.name ?? ""}>
+                      {user.name || "Без імені"}
+                    </span>
                   </td>
 
-                  <td className="px-5 py-4 text-muted">{user.email}</td>
+                  <td className="max-w-0 px-3 py-4 text-muted">
+                    <span className="block truncate" title={user.email ?? ""}>
+                      {user.email || "—"}
+                    </span>
+                  </td>
 
-                  <td className="px-5 py-4 text-text">
+                  <td className="px-3 py-4 text-text">
                     {user._count.attempts}
                   </td>
 
-                  <td className="px-5 py-4 text-muted">
-                    {latestAttempt?.test.title || "Ще не проходив"}
+                  <td className="max-w-0 px-3 py-4 text-muted">
+                    <span
+                      className="block truncate"
+                      title={latestAttempt?.test.title ?? ""}
+                    >
+                      {latestAttempt?.test.title || "Ще не проходив"}
+                    </span>
                   </td>
 
-                  <td className="px-5 py-4">
+                  <td className="px-3 py-4">
                     {hasRisk ? (
-                      <span className="rounded-full bg-softRed px-3 py-1 text-xs text-text">
+                      <span className="inline-flex rounded-full bg-softRed px-3 py-1 text-xs text-text">
                         Так
                       </span>
                     ) : (
-                      <span className="rounded-full bg-softGreen px-3 py-1 text-xs text-text">
+                      <span className="inline-flex rounded-full bg-softGreen px-3 py-1 text-xs text-text">
                         Ні
                       </span>
                     )}
                   </td>
 
-                  <td className="px-5 py-4 text-muted">
+                  <td className="whitespace-nowrap px-3 py-4 text-muted">
                     {latestAttempt ? formatDate(latestAttempt.createdAt) : "—"}
                   </td>
 
-                  <td className="px-5 py-4">
+                  <td className="whitespace-nowrap px-3 py-4 text-right">
                     <Link
                       href={`/admin/users/${user.id}`}
-                      className="rounded-full bg-text px-4 py-2 text-xs text-white transition hover:opacity-80"
+                      className="inline-flex w-[82px] justify-center rounded-full bg-text px-3 py-2 text-xs text-white transition hover:opacity-80"
                     >
                       Відкрити
                     </Link>
